@@ -163,8 +163,8 @@ for _ in range(args.seeds):
             # save the result to disk
             imageio.imwrite('./generated_inputs/' + args.transformation + '_' + str(predictions1) + '_' + str(
                 predictions2) + '_' + str(predictions3) + '.png',
-                   gen_img_deprocessed)
+                            gen_img_deprocessed)
             imageio.imwrite('./generated_inputs/' + args.transformation + '_' + str(predictions1) + '_' + str(
                 predictions2) + '_' + str(predictions3) + '_orig.png',
-                   orig_img_deprocessed)
+                            orig_img_deprocessed)
             break

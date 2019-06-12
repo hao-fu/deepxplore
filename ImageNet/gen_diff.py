@@ -6,11 +6,12 @@ from __future__ import print_function
 
 import argparse
 
+import imageio
 from keras.applications.resnet50 import ResNet50
 from keras.applications.vgg16 import VGG16
 from keras.applications.vgg19 import VGG19
 from keras.layers import Input
-from scipy.misc import imsave
+from keras_preprocessing.image import list_pictures
 
 from configs import bcolors
 from utils import *
@@ -50,8 +51,8 @@ model_layer_dict1, model_layer_dict2, model_layer_dict3 = init_coverage_tables(m
 
 # ==============================================================================================
 # start gen inputs
-img_paths = image.list_pictures('./seeds', ext='JPEG')
-for _ in xrange(args.seeds):
+img_paths = list_pictures('./seeds')
+for _ in range(args.seeds):
     gen_img = preprocess_image(random.choice(img_paths))
     orig_img = gen_img.copy()
     # first check if input already induces differences
@@ -81,7 +82,7 @@ for _ in xrange(args.seeds):
         gen_img_deprocessed = deprocess_image(gen_img)
 
         # save the result to disk
-        imsave('./generated_inputs/' + 'already_differ_' + decode_label(pred1) + '_' + decode_label(
+        imageio.imwrite('./generated_inputs/' + 'already_differ_' + decode_label(pred1) + '_' + decode_label(
             pred2) + '_' + decode_label(pred3) + '.png',
                gen_img_deprocessed)
         continue
@@ -120,7 +121,7 @@ for _ in xrange(args.seeds):
     iterate = K.function([input_tensor], [loss1, loss2, loss3, loss1_neuron, loss2_neuron, loss3_neuron, grads])
 
     # we run gradient ascent for 20 steps
-    for iters in xrange(args.grad_iterations):
+    for iters in range(args.grad_iterations):
         loss_value1, loss_value2, loss_value3, loss_neuron1, loss_neuron2, loss_neuron3, grads_value = iterate(
             [gen_img])
         if args.transformation == 'light':
@@ -155,8 +156,10 @@ for _ in xrange(args.seeds):
             orig_img_deprocessed = deprocess_image(orig_img)
 
             # save the result to disk
-            imsave('./generated_inputs/' + args.transformation + '_' + decode_label(pred1) + '_' + decode_label(
-                pred2) + '_' + decode_label(pred3) + '.png', gen_img_deprocessed)
-            imsave('./generated_inputs/' + args.transformation + '_' + decode_label(pred1) + '_' + decode_label(
-                pred2) + '_' + decode_label(pred3) + '_orig.png', orig_img_deprocessed)
+            imageio.imwrite(
+                './generated_inputs/' + args.transformation + '_' + decode_label(pred1) + '_' + decode_label(
+                    pred2) + '_' + decode_label(pred3) + '.png', gen_img_deprocessed)
+            imageio.imwrite(
+                './generated_inputs/' + args.transformation + '_' + decode_label(pred1) + '_' + decode_label(
+                    pred2) + '_' + decode_label(pred3) + '_orig.png', orig_img_deprocessed)
             break
